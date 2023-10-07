@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AnswerApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,4 +23,9 @@ Route::post('/tokens/create', function (Request $request) {
     $user = App\Models\User::where('email', $request->get('email'))->first();
 
     return $user->createToken('token-name')->plainTextToken;
+});
+
+Route::prefix('/answers')->group(function(){
+    Route::post('/',[AnswerApiController::class, 'store'])->middleware('auth:sanctum');
+    Route::delete('/{answers}',[AnswerApiController::class, 'destroy']);
 });
