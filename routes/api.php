@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\QuestionApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,4 +23,10 @@ Route::post('/tokens/create', function (Request $request) {
     $user = App\Models\User::where('email', $request->get('email'))->first();
 
     return $user->createToken('token-name')->plainTextToken;
+});
+
+Route::prefix('/questions')->group(function(){
+    Route::get('/',[QuestionApiController::class, 'index']);
+    Route::get('/{question}',[QuestionApiController::class, 'show']);
+    Route::post('/',[QuestionApiController::class, 'store'])->middleware('auth:sanctum');
 });
