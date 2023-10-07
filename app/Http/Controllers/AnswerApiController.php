@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Answer;
 
 class AnswerApiController extends Controller
 {
@@ -24,12 +25,6 @@ class AnswerApiController extends Controller
      */
     public function store(Request $request)
     {
-        if(\Auth::user()->is_chosen == 0){
-            return response()->json([
-                "success" => "fail",
-            ]);
-        }
-
         $answers = Answer::where('question_id',$request->get('question_id'))
                             ->where('deleted',0)
                             ->count();
@@ -83,6 +78,12 @@ class AnswerApiController extends Controller
      */
     public function destroy($id)
     {
+        if(\Auth::user()->is_chosen == 0){
+            return response()->json([
+                "success" => "fail",
+            ]);
+        }
+
         $answer = Answer::where('id',$id)
                         ->where('deleted',0)
                         ->first();

@@ -29,7 +29,7 @@ class QuestionApiController extends Controller
         
         return response()->json([
             "success" => "success",
-            $questions,
+            "response" => $questions,
         ]);
     }
 
@@ -61,7 +61,36 @@ class QuestionApiController extends Controller
      */
     public function show($id)
     {
-        
+        $question = Question::leftjoin('answers',function($join){
+                                $join->on('questions.id','=','answers.question_id')
+                                    ->where('answers.deleted',0);
+                            })
+                            ->join('users as q_user', 'questions.user_id','=','q_user.id')
+                            ->leftjoin('users as a_user', 'answers.user_id','=','a_user.id')
+                            ->where('questions.deleted',0)
+                            ->where('questions.id',$id)
+                            ->select(
+                                'questions.id as question_id',
+                                'questions.title as question_title',
+                                'questions.content as question_content',
+                                'questions.created_at as question_at',
+                                'q_user.breed as question_breed',
+                                'answers.content as answer_content',
+                                'answers.is_chosen',
+                                'answers.created_at as answer_at',
+                                'a_user.breed as answer_breed',
+                            )
+                            ->get()
+                            ->groupBy('question_id');
+
+
+
+
+
+        return response()->json([
+            "success" => "success",
+            "response" => $question,
+        ]);
     }
 
     /**
