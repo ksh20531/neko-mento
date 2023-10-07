@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuestionApiController;
+use App\Http\Controllers\AnswerApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,4 +30,9 @@ Route::prefix('/questions')->group(function(){
     Route::get('/',[QuestionApiController::class, 'index']);
     Route::get('/{question}',[QuestionApiController::class, 'show']);
     Route::post('/',[QuestionApiController::class, 'store'])->middleware('auth:sanctum');
+});
+
+Route::prefix('/answers')->group(function(){
+    Route::post('/',[AnswerApiController::class, 'store'])->middleware('auth:sanctum');
+    Route::delete('/{answers}',[AnswerApiController::class, 'destroy']);
 });
