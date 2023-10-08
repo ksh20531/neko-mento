@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Question;
+use Illuminate\Support\Facades\Validator;
 
 class QuestionApiController extends Controller
 {
@@ -41,6 +42,16 @@ class QuestionApiController extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'category' => 'in:사료 고민,집사 고민,그루밍'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                "success" => "fail",
+            ]);
+        }
+
         $question = new Question;
         $question->user_id = \Auth::user()->id;
         $question->title = $request->get('title');
@@ -82,10 +93,6 @@ class QuestionApiController extends Controller
                             )
                             ->get()
                             ->groupBy('question_id');
-
-
-
-
 
         return response()->json([
             "success" => "success",
