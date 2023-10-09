@@ -34,5 +34,5 @@ Route::prefix('/questions')->group(function(){
 
 Route::prefix('/answers')->group(function(){
     Route::post('/',[AnswerApiController::class, 'store'])->middleware('auth:sanctum');
-    Route::delete('/{answers}',[AnswerApiController::class, 'destroy']);
+    Route::delete('/{answer}',[AnswerApiController::class, 'destroy']);
 });
