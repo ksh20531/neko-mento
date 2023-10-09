@@ -53,7 +53,7 @@ class QuestionApiController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'category' => 'in:사료 고민,집사 고민,그루밍'
+            'category' => 'nullable|in:사료 고민,집사 고민,그루밍'
         ]);
 
         if ($validator->fails()) {
