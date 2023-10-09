@@ -26,6 +26,14 @@ class AnswerApiController extends Controller
     public function store(Request $request)
     {
         try{
+            if(\Auth::user()->is_mento == 0){
+                return response()->json([
+                    "success" => "fail",
+                    "error" => "is_mentee_user",
+                    "code" => 403
+                ]);
+            }
+
             $answers = Answer::where('question_id',$request->get('question_id'))
                                 ->where('deleted',0)
                                 ->count();
@@ -90,14 +98,6 @@ class AnswerApiController extends Controller
      */
     public function destroy($id)
     {
-        if(\Auth::user()->is_chosen == 0){
-            return response()->json([
-                "success" => "fail",
-                "error" => "is_mentee_user",
-                "code" => 403
-            ]);
-        }
-
         try{
             $answer = Answer::where('id',$id)
                         ->where('deleted',0)
