@@ -25,25 +25,37 @@ class AnswerApiController extends Controller
      */
     public function store(Request $request)
     {
-        $answers = Answer::where('question_id',$request->get('question_id'))
-                            ->where('deleted',0)
-                            ->count();
+        try{
+            $answers = Answer::where('question_id',$request->get('question_id'))
+                                ->where('deleted',0)
+                                ->count();
 
-        if($answers + 1 <= 3){
-            $answer = new Answer;
-            $answer->question_id = $request->get('question_id');
-            $answer->user_id = \Auth::user()->id;
-            $answer->content = $request->get('content');
-            $answer->save();
+            if($answers + 1 <= 3){
+                $answer = new Answer;
+                $answer->question_id = $request->get('question_id');
+                $answer->user_id = \Auth::user()->id;
+                $answer->content = $request->get('content');
+                $answer->save();
 
+                return response()->json([
+                    "success" => "success",
+                    "code" => 201
+                ]);
+
+            }else{
+                return response()->json([
+                    "success" => "fail",
+                    "error" => "too_many_answers",
+                    "code" => 202
+                ]);
+            }
+
+        }catch(Exception $e){
             return response()->json([
-                "success" => "success",
-            ]);
-
-        }else{
-            return response()->json([
-                "success" => "fail",
-            ]);
+                    "success" => "fail",
+                    "error" => "DB_connection_error",
+                    "code" => 500
+                ]);
         }
     }
 
@@ -81,30 +93,38 @@ class AnswerApiController extends Controller
         if(\Auth::user()->is_chosen == 0){
             return response()->json([
                 "success" => "fail",
+                "error" => "is_mentee_user",
+                "code" => 403
             ]);
         }
 
-        $answer = Answer::where('id',$id)
+        try{
+            $answer = Answer::where('id',$id)
                         ->where('deleted',0)
                         ->first();
 
-        if($answer->is_chosen == 0){
-            $answer->deleted = 1;
-            $answer->save();
+            if($answer->is_chosen == 0){
+                $answer->deleted = 1;
+                $answer->save();
 
-            return response()->json([
-                "success" => "success",
-            ]);
+                return response()->json([
+                    "success" => "success",
+                    "code" => 200
+                ]);
 
-        }else if($answer->is_chosen == 1){
+            }else{
+                return response()->json([
+                    "success" => "fail",
+                    "error" => "is_chosen_answer",
+                    "code" => 202
+                ]);
+            }
+        }catch(Exception $e){
             return response()->json([
-                "success" => "fail",
-            ]);
-
-        }else{
-            return response()->json([
-                "success" => "fail",
-            ]);
+                    "success" => "fail",
+                    "error" => "DB_connection_error",
+                    "code" => 500
+                ]);
         }
     }
 }
