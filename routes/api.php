@@ -27,9 +27,11 @@ Route::post('/tokens/create', function (Request $request) {
 });
 
 Route::prefix('/questions')->group(function(){
-    Route::get('/',[QuestionApiController::class, 'index']);
-    Route::get('/{question}',[QuestionApiController::class, 'show']);
-    Route::post('/',[QuestionApiController::class, 'store'])->middleware('auth:sanctum');
+    Route::get('/',[QuestionApiController::class, 'index'])->name('question.index');
+    Route::post('/',[QuestionApiController::class, 'store'])->middleware('auth:sanctum')->name('question.store');
+    Route::get('/{question}',[QuestionApiController::class, 'show'])->name('question.show');
+    Route::put('/{question}',[QuestionApiController::class, 'update'])->middleware('auth:sanctum')->name('question.update');
+    Route::delete('/{question}',[QuestionApiController::class, 'destroy'])->name('question.destroy');
 });
 
 Route::prefix('/answers')->group(function(){

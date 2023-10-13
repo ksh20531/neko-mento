@@ -124,10 +124,10 @@ class QuestionApiController extends Controller
 
         }catch(Exception $e){
             return response()->json([
-                    "success" => "fail",
-                    "error" => "DB_connection_error",
-                    "code" => 500
-                ]);
+                "success" => "fail",
+                "error" => "DB_connection_error",
+                "code" => 500
+            ]);
         }
     }
 
@@ -140,7 +140,29 @@ class QuestionApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        \Log::info("QuestionApiController::update");
+        try{
+            $question = Question::where('id',$id)
+                                ->where('deleted',0)
+                                ->first();
+
+            $question->title = $request->get('title');
+            $question->content = $request->get('content');
+            $question->category = $request->get('category');
+            $question->save();
+
+            return response()->json([
+                "success" => "success",
+                "code" => 201
+            ]);
+
+        }catch(Exception $e){
+            return response()->json([
+                "success" => "fail",
+                "error" => "DB_connection_error",
+                "code" => 500
+            ]);
+        }
     }
 
     /**
@@ -151,6 +173,25 @@ class QuestionApiController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try{
+            $question = Question::where('id',$id)
+                                ->where('deleted',0)
+                                ->first();
+
+            $question->deleted = 1;
+            $question->save();
+
+            return response()->json([
+                "success" => "success",
+                "code" => 201
+            ]);
+
+        }catch(Exception $e){
+            return response()->json([
+                "success" => "fail",
+                "error" => "DB_connection_error",
+                "code" => 500
+            ]);
+        }
     }
 }
