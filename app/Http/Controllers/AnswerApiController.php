@@ -87,7 +87,43 @@ class AnswerApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        try{
+            $answer = Answer::where('id',$id)
+                        ->where('deleted',0)
+                        ->first();
+
+            if($answer->is_chosen != 0){
+                return response()->json([
+                    "success" => "fail",
+                    "error" => "is_chosen_answer",
+                    "code" => 202
+                ]);
+
+            }else if($answer->user_id != \Auth::user()->id){
+                return response()->json([
+                    "success" => "fail",
+                    "error" => "is_not_owned_content",
+                    "code" => 403
+                ]);
+
+            }else if($answer->is_chosen == 0 && $answer->user_id == \Auth::user()->id){
+                $answer->question_id = $answer->question_id;
+                $answer->user_id = \Auth::user()->id;
+                $answer->content = $request->get('content');
+                $answer->save();
+
+                return response()->json([
+                    "success" => "success",
+                    "code" => 201
+                ]);
+            }
+        }catch(Exception $e){
+            return response()->json([
+                "success" => "fail",
+                "error" => "DB_connection_error",
+                "code" => 500
+            ]);
+        }
     }
 
     /**
@@ -121,10 +157,10 @@ class AnswerApiController extends Controller
             }
         }catch(Exception $e){
             return response()->json([
-                    "success" => "fail",
-                    "error" => "DB_connection_error",
-                    "code" => 500
-                ]);
+                "success" => "fail",
+                "error" => "DB_connection_error",
+                "code" => 500
+            ]);
         }
     }
 }
