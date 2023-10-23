@@ -16,18 +16,19 @@ class QuestionApiController extends Controller
     public function index()
     {
         try{
-            $questions = Question::join('users',function($join){
-                                            $join->on('questions.user_id','=','users.id')
-                                                ->where('users.deleted',0);
-                                        })
-                                    ->where('questions.deleted',0)
-                                    ->select(
-                                        'questions.title',
-                                        \DB::raw('left(content,20) as content'),
-                                        'questions.created_at',
-                                        'users.breed',
-                                    )
-                                    ->paginate(6);
+            $questions = Question::with(['user' => function($q){
+                                    $q->select(
+                                        'id',
+                                        'email',
+                                        'breed'
+                                    );
+                                }])
+                                ->where('deleted',0)
+                                ->select(
+                                    "*",
+                                    \DB::raw('left(content,20) as content')
+                                )
+                                ->paginate(6);
             
             return response()->json([
                 "success" => "success",
@@ -94,27 +95,16 @@ class QuestionApiController extends Controller
     public function show($id)
     {
         try{
-            $question = Question::leftjoin('answers',function($join){
-                                    $join->on('questions.id','=','answers.question_id')
-                                        ->where('answers.deleted',0);
-                                })
-                                ->join('users as q_user', 'questions.user_id','=','q_user.id')
-                                ->leftjoin('users as a_user', 'answers.user_id','=','a_user.id')
-                                ->where('questions.deleted',0)
-                                ->where('questions.id',$id)
-                                ->select(
-                                    'questions.id as question_id',
-                                    'questions.title as question_title',
-                                    'questions.content as question_content',
-                                    'questions.created_at as question_at',
-                                    'q_user.breed as question_breed',
-                                    'answers.content as answer_content',
-                                    'answers.is_chosen',
-                                    'answers.created_at as answer_at',
-                                    'a_user.breed as answer_breed',
-                                )
-                                ->get()
-                                ->groupBy('question_id');
+            $question = Question::with(['answers.user' => function($q){
+                                    $q->where('deleted',0);
+                                }])
+                                ->with(['answers' => function($q){
+                                    $q->where('deleted',0);
+                                }])
+                                ->with(['user' => function($q){
+                                    $q->where('deleted',0);
+                                }])
+                                ->find($id);
 
             return response()->json([
                 "success" => "success",
